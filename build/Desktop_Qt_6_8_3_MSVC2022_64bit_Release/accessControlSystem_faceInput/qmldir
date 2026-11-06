@@ -1,0 +1,8 @@
+module accessControlSystem_faceInput
+typeinfo appaccessControlSystem_faceInput.qmltypes
+prefer :/qt/qml/accessControlSystem_faceInput/
+Main 254.0 Main.qml
+LabeledTextField 254.0 LabeledTextField.qml
+Login 254.0 Login.qml
+FaceInput 254.0 FaceInput.qml
+

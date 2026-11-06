@@ -1,0 +1,10 @@
+-I
+D:/0.ronghua/accessControlSystem_faceInput/accessControlSystem_faceInput/build/Desktop_Qt_6_8_3_MSVC2022_64bit_Debug
+-I
+D:/WorkProgram/QT/6.8.3/msvc2022_64/qml
+--resource
+D:/0.ronghua/accessControlSystem_faceInput/accessControlSystem_faceInput/build/Desktop_Qt_6_8_3_MSVC2022_64bit_Debug/.qt/rcc/qmake_accessControlSystem_faceInput.qrc
+--resource
+D:/0.ronghua/accessControlSystem_faceInput/accessControlSystem_faceInput/build/Desktop_Qt_6_8_3_MSVC2022_64bit_Debug/.qt/rcc/appaccessControlSystem_faceInput_raw_qml_0.qrc
+--module
+accessControlSystem_faceInput

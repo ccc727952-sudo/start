@@ -1,0 +1,119 @@
+{
+    "classes": [
+        {
+            "className": "FaceInputManager",
+            "lineNumber": 21,
+            "methods": [
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "index",
+                            "type": "int"
+                        }
+                    ],
+                    "index": 5,
+                    "name": "openCamera",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "type",
+                            "type": "int"
+                        }
+                    ],
+                    "index": 6,
+                    "name": "closeCamera",
+                    "returnType": "void"
+                }
+            ],
+            "object": true,
+            "properties": [
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 0,
+                    "name": "displaySink",
+                    "notify": "displaySinkChanged",
+                    "read": "getDisplaySink",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "QVideoSink*",
+                    "user": false,
+                    "write": "setDisplaySink"
+                }
+            ],
+            "qualifiedClassName": "FaceInputManager",
+            "signals": [
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "index",
+                            "type": "int"
+                        }
+                    ],
+                    "index": 0,
+                    "name": "notifyOpenCamera",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "type",
+                            "type": "int"
+                        }
+                    ],
+                    "index": 1,
+                    "name": "notifyCloseCamera",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 2,
+                    "name": "displaySinkChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "message",
+                            "type": "QString"
+                        }
+                    ],
+                    "index": 3,
+                    "name": "errorOccurred",
+                    "returnType": "void"
+                }
+            ],
+            "slots": [
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "image",
+                            "type": "QImage"
+                        }
+                    ],
+                    "index": 4,
+                    "name": "onFrameReady",
+                    "returnType": "void"
+                }
+            ],
+            "superClasses": [
+                {
+                    "access": "public",
+                    "name": "QObject"
+                }
+            ]
+        }
+    ],
+    "inputFile": "faceinputmanager.h",
+    "outputRevision": 68
+}

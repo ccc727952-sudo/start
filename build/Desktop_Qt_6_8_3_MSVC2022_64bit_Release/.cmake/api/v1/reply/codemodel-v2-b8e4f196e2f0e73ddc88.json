@@ -1,0 +1,205 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Release-93c3da10737fc01bb0d5.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "accessControlSystem_faceInput",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "all_aotstats::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-all_aotstats-Release-380a9476bd09c757e9eb.json",
+					"name" : "all_aotstats",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "all_qmllint::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-all_qmllint-Release-e29debaacea4bb229ae2.json",
+					"name" : "all_qmllint",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "all_qmllint_json::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-all_qmllint_json-Release-558b9dda58f14f7030a2.json",
+					"name" : "all_qmllint_json",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "all_qmllint_module::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-all_qmllint_module-Release-34a48348e999f70cf559.json",
+					"name" : "all_qmllint_module",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "all_qmltyperegistrations::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-all_qmltyperegistrations-Release-8045c3304b296dd518b4.json",
+					"name" : "all_qmltyperegistrations",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "appaccessControlSystem_faceInput::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-appaccessControlSystem_faceInput-Release-a5048390afc2a29155cb.json",
+					"name" : "appaccessControlSystem_faceInput",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "appaccessControlSystem_faceInput_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-appaccessControlSystem_faceInput_autogen-Release-a5fcd042c151adc77811.json",
+					"name" : "appaccessControlSystem_faceInput_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "appaccessControlSystem_faceInput_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-appaccessControlSystem_faceInput_autogen_timestamp_deps-Release-a5b6c2d48bc2d39d088c.json",
+					"name" : "appaccessControlSystem_faceInput_autogen_timestamp_deps",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "appaccessControlSystem_faceInput_copy_qml::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-appaccessControlSystem_faceInput_copy_qml-Release-6e195b6bae11b8e1c0cb.json",
+					"name" : "appaccessControlSystem_faceInput_copy_qml",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "appaccessControlSystem_faceInput_copy_res::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-appaccessControlSystem_faceInput_copy_res-Release-2a448c8dcaa5aa987894.json",
+					"name" : "appaccessControlSystem_faceInput_copy_res",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "appaccessControlSystem_faceInput_generate_qmlls_ini_file::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-appaccessControlSystem_faceInput_generate_qmlls_ini_file-Release-8368a7ebd75f56e070f8.json",
+					"name" : "appaccessControlSystem_faceInput_generate_qmlls_ini_file",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "appaccessControlSystem_faceInput_qmlimportscan::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-appaccessControlSystem_faceInput_qmlimportscan-Release-7c3180ed838843eb7823.json",
+					"name" : "appaccessControlSystem_faceInput_qmlimportscan",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "appaccessControlSystem_faceInput_qmllint::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-appaccessControlSystem_faceInput_qmllint-Release-e6c1c66140e23e22f73c.json",
+					"name" : "appaccessControlSystem_faceInput_qmllint",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "appaccessControlSystem_faceInput_qmllint_json::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-appaccessControlSystem_faceInput_qmllint_json-Release-685925049451dd801e32.json",
+					"name" : "appaccessControlSystem_faceInput_qmllint_json",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "appaccessControlSystem_faceInput_qmllint_module::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-appaccessControlSystem_faceInput_qmllint_module-Release-691b1ed32248ebbea037.json",
+					"name" : "appaccessControlSystem_faceInput_qmllint_module",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "appaccessControlSystem_faceInput_qmltyperegistration::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-appaccessControlSystem_faceInput_qmltyperegistration-Release-320a4e71974fb77f4c9f.json",
+					"name" : "appaccessControlSystem_faceInput_qmltyperegistration",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "module_appaccessControlSystem_faceInput_aotstats_target::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-module_appaccessControlSystem_faceInput_aotstats_target-Release-eb0ac21ef8462c61461d.json",
+					"name" : "module_appaccessControlSystem_faceInput_aotstats_target",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "D:/0.ronghua/accessControlSystem_faceInput/accessControlSystem_faceInput/build/Desktop_Qt_6_8_3_MSVC2022_64bit_Release",
+		"source" : "D:/0.ronghua/accessControlSystem_faceInput/accessControlSystem_faceInput"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

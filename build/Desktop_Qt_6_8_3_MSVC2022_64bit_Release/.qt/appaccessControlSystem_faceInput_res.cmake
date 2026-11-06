@@ -1,0 +1,7 @@
+
+set(target "appaccessControlSystem_faceInput")
+set(working_dir "D:/0.ronghua/accessControlSystem_faceInput/accessControlSystem_faceInput")
+set(src_and_dest_list
+
+)
+set(timestamp_file "D:/0.ronghua/accessControlSystem_faceInput/accessControlSystem_faceInput/build/Desktop_Qt_6_8_3_MSVC2022_64bit_Release/.qt/appaccessControlSystem_faceInput_res.txt")

@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="/qt/qml/accessControlSystem_faceInput/">
+    <file alias="Main.qml">D:/0.ronghua/accessControlSystem_faceInput/accessControlSystem_faceInput/Main.qml</file>
+    <file alias="LabeledTextField.qml">D:/0.ronghua/accessControlSystem_faceInput/accessControlSystem_faceInput/LabeledTextField.qml</file>
+    <file alias="Login.qml">D:/0.ronghua/accessControlSystem_faceInput/accessControlSystem_faceInput/Login.qml</file>
+    <file alias="FaceInput.qml">D:/0.ronghua/accessControlSystem_faceInput/accessControlSystem_faceInput/FaceInput.qml</file>
+  </qresource>
+</RCC>
+
