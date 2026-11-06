@@ -1,0 +1,21 @@
+# 构建产物
+build/
+build-*/
+
+# Qt Creator / Qt 工具缓存
+.cache/
+.qtcreator/
+.qmlls.ini
+CMakeLists.txt.user
+CMakeLists.txt.user.*
+*.autosave
+
+# 编译中间文件
+*.obj
+*.o
+*.pdb
+*.ilk
+*.exe
+*.dll
+*.lib
+*.exp
