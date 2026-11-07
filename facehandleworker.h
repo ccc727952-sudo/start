@@ -1,3 +1,7 @@
+/*
+ * @brief 人脸处理线程// 负责处理一帧图像的人脸识别任务// 包含人脸检测、活体检测、特征提取等功能。
+ * 
+*/
 #ifndef FACEHANDLEWORKER_H
 #define FACEHANDLEWORKER_H
 

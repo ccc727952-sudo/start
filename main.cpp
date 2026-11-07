@@ -1,3 +1,7 @@
+/*
+ * @brief 主程序// 负责初始化 Qt 应用、加载 QML 文件、处理事件等。
+ * 
+*/
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <opencv2/opencv.hpp>

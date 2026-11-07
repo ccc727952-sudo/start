@@ -1,3 +1,7 @@
+/*
+ * @brief 登录管理器// 负责管理登录模块的运行// 包含登录校验等功能。
+ * 
+*/
 #ifndef LOGINMANAGER_H
 #define LOGINMANAGER_H
 

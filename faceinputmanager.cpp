@@ -1,3 +1,7 @@
+/*
+ * @brief 人脸输入管理器// 负责管理人脸输入模块的运行// 包含采集线程、处理线程等功能。
+ * 
+*/
 #include "faceinputmanager.h"
 #include <QDebug>
 #include <QVideoFrameFormat>

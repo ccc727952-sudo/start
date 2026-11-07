@@ -1,10 +1,31 @@
+/*
+ * @brief 摄像头采集线程
+ * 
+没有函数
+
+有信号
+1.onFrameReady(const QImage &image)：取到一帧，通知上层FaceInputManager拿去显示
+2.errorOccurred(const QString &message)：出错了(打不开摄像头、读帧失败)，通知上层弹提示FaceInputManager
+3.handleFrame(const cv::Mat& image)：把裁剪好的引导框区域交给  人脸处理线程
+
+有槽函数
+1.void open(int index);//打开摄像头，index是摄像头的编号(0=第一个)  
+2.void close(int type);//关闭摄像头，type=0暂停采集、type=1彻底释放设备
+3.void grabFrame();//抓取一帧视频，由定时器自动调动，一般不用手动掉
+4.void handleFrameFinished(bool isFinished);//处理一帧结束，通知上层，可以处理下一帧了
+5.void stopTimer();//停止定时器，用于暂停采集
+ * 它包含了一个定时器，每33毫秒抓取一帧视频，然后发送给qml用户。
+*/
+
+
+
 #ifndef CAPTUREWORKER_H
 #define CAPTUREWORKER_H
 
 #include <QObject>
-#include <QImage>
+#include <QImage>//用于显示采集到的图像
 #include <QTimer>
-#include <opencv2/opencv.hpp>
+#include <opencv2/opencv.hpp>//用于处理图像
 
 //摄像头采集线程，从摄像头取一帧图像，然后发信号通知别人，不关注图像显示到哪里(FaceInputManager的事情)，界面长什么样子(完全不碰QML)
 /*为什么必须放在子线程里？

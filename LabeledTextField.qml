@@ -1,3 +1,7 @@
+/*
+ * @brief 带标签的输入框// 负责显示一个标签和一个输入框// 包含标签文字、输入框文字、输入框值等功能。
+ * 
+*/
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls

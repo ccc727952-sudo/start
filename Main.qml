@@ -1,3 +1,7 @@
+/*
+ * @brief 主窗口// 负责显示应用的主界面// 包含登录页、人脸录入页等功能。
+ * 
+*/
 // Main.qml
 import QtQuick
 import QtQuick.Layouts

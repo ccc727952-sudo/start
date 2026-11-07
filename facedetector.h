@@ -1,3 +1,8 @@
+/*
+ * @brief 人脸检测器// 基于 YOLO-face 的 OpenCV DNN 人脸检测器
+ * 
+ */
+
 #ifndef FACEDETECTOR_H
 #define FACEDETECTOR_H
 

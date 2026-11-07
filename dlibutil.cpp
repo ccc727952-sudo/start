@@ -1,3 +1,17 @@
+/*
+作用：dlib 工具类：具体实现dlib的人脸识别功能// 包含人脸检测、特征提取、眨眼状态机等功能。
+函数：
+1.void detectFace(const cv::Mat& frame, std::vector<dlib::rectangle>& faces);//人脸检测
+2.void extractFeature(const cv::Mat& frame, std::vector<dlib::rectangle>& faces, std::vector<float>& features);//特征提取
+3.void detectRealBlink(double ear, qint64 currentTimeMs);//眨眼状态机
+4.std::vector<float> getFaceFeatures(const cv::Mat& frame, const std::vector<dlib::rectangle>& faces);//特征提取提取人脸特征向量
+.
+.
+.
+
+*/
+
+
 #include "dlibutil.h"
 #include "modelpaths.h"
 
@@ -115,7 +129,7 @@ bool DlibUtil::dlibFaceLivenessDetect(const cv::Mat& image, const cv::Rect& face
 
     // ③ 喂给眨眼状态机
     //   眨眼 = 睁眼 -> 闭眼 -> 睁眼 的完整过程
-    return detectRealBlink(avgEar, QDateTime::currentMSecsSinceEpoch());
+    return detectRealBlink(avgEar, QDateTime::currentMSecsSinceEpoch());//返回是否是眨眼状态机的判断结果
 }
 
 // =============================================================================

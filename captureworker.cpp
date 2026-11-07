@@ -1,3 +1,24 @@
+/*
+ * @brief 摄像头采集线程
+ * 
+没有函数
+
+有信号
+1.onFrameReady(const QImage &image)：取到一帧，通知上层FaceInputManager拿去显示
+2.errorOccurred(const QString &message)：出错了(打不开摄像头、读帧失败)，通知上层弹提示FaceInputManager
+3.handleFrame(const cv::Mat& image)：把裁剪好的引导框区域交给  人脸处理线程
+
+有槽函数
+1.void open(int index);//打开摄像头，index是摄像头的编号(0=第一个)  
+2.void close(int type);//关闭摄像头，type=0暂停采集、type=1彻底释放设备
+3.void grabFrame();//抓取一帧视频，由定时器自动调动，一般不用手动掉
+4.void handleFrameFinished(bool isFinished);//处理一帧结束，通知上层，可以处理下一帧了
+5.void stopTimer();//停止定时器，用于暂停采集
+ * 它包含了一个定时器，每33毫秒抓取一帧视频，然后发送给qml用户。
+*/
+
+
+
 
 #include "captureworker.h"
 #include <QDebug>
@@ -9,7 +30,7 @@ CaptureWorker::CaptureWorker(QObject *parent)
     //定时器
     this->timer=new QTimer(this);//以this为父对象，让定时器跟着CaptureWorker一起搬到子线程
 
-    connect(this->timer,&QTimer::timeout,this,&CaptureWorker::grabFrame);
+    connect(this->timer,&QTimer::timeout,this,&CaptureWorker::grabFrame);//定时器每33毫秒抓取一帧视频
 
     //1s大概30帧
     this->timer->start(33);//33毫秒
@@ -43,19 +64,19 @@ void CaptureWorker::close(int type){
 }
 //抓取一帧(由定时器自动调动，一般不用手动掉)
 void CaptureWorker::grabFrame(){
-    if(!this->m_isrunning){
+    if(!this->m_isrunning){//如果采集线程没有运行，直接返回
         return;
     }
-    cv::Mat frame;
-    this->cap>>frame;//这一步可能会阻塞，所以必须在子线程中
-    if(frame.empty()){
+    cv::Mat frame;//存储采集到的帧
+    this->cap>>frame;//这一步可能会阻塞，所以必须在子线程中//读取一帧视频
+    if(frame.empty()){//如果读取到的帧为空，说明摄像头有问题，也要给用户提示
         //读取帧失败，说明摄像头有问题，也要给用户提示
         emit errorOccurred("读取失败");
-        this->m_isrunning=false;
+        this->m_isrunning=false;//采集线程结束
         return;
     }
     //为什么要跳帧？人脸检测+dlib推理一次要几十毫秒，摄像头每秒30帧，每一帧都出来，帧会越积越多(越处理越卡)，跳帧减少压力，又流畅又省力
-    const int seq=this->m_frameCounter.fetchAndAddOrdered(1);
+    const int seq=this->m_frameCounter.fetchAndAddOrdered(1);//获取当前帧序号
     //每5帧推一次，并且上一帧已经处理完了，并且用户特征已经提取
     if(seq%5==0 && !this->is_processing && !this->is_detect){
         //裁剪出【页面引导框】对应的区域，C++和QML必须抱持一致

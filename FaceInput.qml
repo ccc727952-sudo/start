@@ -1,3 +1,7 @@
+/*
+ * @brief 人脸录入页// 负责显示人脸录入界面// 包含采集线程、处理线程等功能。
+ * 
+*/
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

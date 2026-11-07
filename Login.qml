@@ -1,3 +1,7 @@
+/*
+ * @brief 登录页// 负责显示登录界面// 包含账号密码输入框、登录按钮等功能。
+ * 
+*/
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
