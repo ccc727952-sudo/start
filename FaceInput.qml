@@ -28,6 +28,13 @@ Item {
         title:"错误"
         buttons: MessageDialog.Ok
     }
+        //接收C++发来的活体引导提示
+    Connections{
+        target: faceInputManager
+        function onLivenessPrompt(text){
+            hintText.text = text
+        }
+    }
     //垂直布局
     ColumnLayout{
         anchors.fill: parent
@@ -67,6 +74,29 @@ Item {
                     border.color: "#00FF00"
                     border.width: 2
                     radius: 8
+                }
+                                //活体检测引导提示条
+                Rectangle {
+                    id: hintBar
+                    anchors.top: parent.top
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.topMargin: 12
+                    width: hintText.implicitWidth + 40
+                    height: 42
+                    radius: 21
+                    color: "#B3000000"        // 半透明黑底
+                    border.color: "#00FF00"
+                    border.width: 1
+                    visible: hintText.text.length > 0
+
+                    Text {
+                        id: hintText
+                        anchors.centerIn: parent
+                        text: ""
+                        color: "#00FF00"
+                        font.pixelSize: 18
+                        font.bold: true
+                    }
                 }
                 Text{
                     anchors.centerIn: parent

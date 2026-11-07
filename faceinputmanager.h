@@ -53,6 +53,8 @@ signals:
     void displaySinkChanged();
     //出错了，通知QML谈提示框
     void errorOccurred(const QString &message);
+        //活体检测引导提示（转发给QML）
+    void livenessPrompt(const QString &text);
 public slots:
     //worker采集到帧后，通过信号通知，在这里操作QML可以显示的对象
     void onFrameReady(const QImage &image);

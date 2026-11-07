@@ -31,6 +31,8 @@ public:
 signals:
     //告诉采集线程，这一帧处理完了，等用户提交才能继续处理下一帧
     void handleFrameFinished(bool isFinished);
+        //活体检测引导提示：给QML显示"请眨眼 / 请张嘴 / 请摇头"
+    void livenessPrompt(const QString &text);
 public slots:
     //收到一帧图像，做  人脸识别  -> 活体检测  ->特征提取
     void handleFrame(const cv::Mat& image);
@@ -41,6 +43,10 @@ private:
     DlibUtil* dlibUtil=nullptr;
     //当前处于流程的那一步
     WorkState m_workState=START;
+    //上一句提示，用来去重：同一句话不重复发
+    QString m_lastPrompt;
+    //发提示（内部会去重）
+    void emitPrompt(const QString &text);
 };
 
 #endif // FACEHANDLEWORKER_H

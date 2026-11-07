@@ -35,7 +35,9 @@ FaceInputManager::FaceInputManager(QObject *parent)
     connect(this->capWorker,&CaptureWorker::handleFrame,this->faceHandleWorker,&FaceHandleWorker::handleFrame);
     //处理线程->采集线程：报告这一帧处理完了
     connect(this->faceHandleWorker,&FaceHandleWorker::handleFrameFinished,this->capWorker,&CaptureWorker::handleFrameFinished);
-
+        //处理线程->界面：把活体引导提示转发给QML
+    //信号连信号，跨线程自动变队列连接，不用加锁
+    connect(this->faceHandleWorker,&FaceHandleWorker::livenessPrompt,this,&FaceInputManager::livenessPrompt);
     //开启子线程
     this->capWorkerThread->start();
     this->faceHandleWorkerThread->start();
