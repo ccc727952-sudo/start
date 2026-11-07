@@ -274,3 +274,170 @@ bool DlibUtil::detectRealBlink(double ear, qint64 currentTimeMs)
 
     return false;
 }
+
+// =============================================================================
+// 【calculateMAR】计算嘴巴纵横比
+//
+//   内唇 8 个点（60~67）：
+//      60 —— 61 —— 62 —— 63
+//      |                  |
+//      67 —— 66 —— 65 —— 64
+//
+//   MAR = (|62-66| + |63-65|) / (2 * |60-64|)
+//     · 闭嘴：上下唇贴合，竖直距离小 → MAR 小（约 0.1~0.3）
+//     · 张嘴：竖直距离变大        → MAR 明显变大（约 0.5~1.0）
+// =============================================================================
+double DlibUtil::calculateMAR(const dlib::full_object_detection& shape)
+{
+    const double A = dlib::length(shape.part(62) - shape.part(66));  // 上内唇中点 -> 下内唇中点
+    const double B = dlib::length(shape.part(63) - shape.part(65));  // 偏右的上唇 -> 偏右的下唇
+    const double C = dlib::length(shape.part(60) - shape.part(64));  // 左嘴角 -> 右嘴角
+    if (C < 1e-6) return 0.0;
+    return (A + B) / (2.0 * C);
+}
+
+// =============================================================================
+// 【detectMouthOpen】张嘴检测
+//
+//   和眨眼一个套路：必须走完 闭 -> 张 -> 闭 才算一次有效张嘴。
+//   只判"张开"会被一张张着嘴的静态照片骗过。
+/*
+作用 ：
+
+- `calculateMAR` 把嘴的 8 个关键点换算成一个“张开程度”的数字，跟 EAR 一个思路。
+- `detectMouthOpen` 是状态机，只有「闭 → 张 → 闭」走完才返回`true` 。
+好处 ：
+
+- 静态照片 永远张不了嘴 ，这一项直接挡掉打印照片。
+- 挡住“闭眼照片 + 眨眼视频贴纸”这种半静态攻击（照片没法张嘴）。
+- MAR 用比例计算，人脸远近、大小都不影响，比固定像素阈值稳。
+*/
+// =============================================================================
+bool DlibUtil::detectMouthOpen(const cv::Mat& image, const cv::Rect& faceBox)
+{
+    cv::Rect safeBox = faceBox & cv::Rect(0, 0, image.cols, image.rows);
+    if (safeBox.area() <= 0) return false;
+
+    bool ok = false;
+    dlib::full_object_detection landmarks = landmarksOf(image, safeBox, &ok);
+    if (!ok) return false;
+
+    const double mar = calculateMAR(landmarks);
+    qDebug() << "MAR 的值:" << mar;
+
+    // 基线：只在"看起来像闭嘴"的帧上更新，防止张嘴帧把基线抬上去
+    if (mar < 0.45 && (m_mouthClosedMar <= 0.0 || mar < m_mouthClosedMar)) {
+        m_mouthClosedMar = mar;
+    }
+    if (m_mouthClosedMar < 0.10) m_mouthClosedMar = 0.15;   // 兜底
+
+    // 阈值跟着基线走：不同人/不同距离嘴的大小不一样
+    const double openThreshold  = qMax(0.45, m_mouthClosedMar * 2.2);
+    const double closeThreshold = qMax(0.30, m_mouthClosedMar * 1.4);
+
+    // 看到张开
+    if (mar > openThreshold) {
+        m_mouthClosedSeen = true;
+        return false;
+    }
+    // 张开之后又闭上 -> 完成一次张嘴
+    if (m_mouthClosedSeen && mar < closeThreshold) {
+        m_mouthClosedSeen = false;
+        return true;
+    }
+    return false;
+}
+
+
+
+
+
+// =============================================================================
+// 【detectHeadShake】摇头检测
+//
+//   原理：鼻尖（30 号点）在脸正中间。头一偏，鼻尖相对"两眼中心"就横移。
+//   用【两眼间距】做归一化，这样人脸远近都不影响判定。
+//
+//   方向变化：左 -> 右 算一次翻转，右 -> 左 再算一次，
+//   翻转次数够 SHAKE_TURNS_REQUIRED 就算完成一次摇头。
+// =============================================================================
+/*
+作用 ：用鼻尖 30 号点相对两眼中心的横向偏移判断头有没有左右摆，摆够次数就返回`true` 。
+
+好处 ：
+
+- 挡住 平面照片/手机屏幕回放 ——照片里的鼻子不会相对眼睛移动，转不动。
+- 转头时人脸是 3D 结构变化，2D 照片无法伪造。
+- 用“两眼间距”归一化，所以人脸大小、距离远近都不影响，比固定像素阈值稳得多。
+*/
+bool DlibUtil::detectHeadShake(const cv::Mat& image, const cv::Rect& faceBox)
+{
+    cv::Rect safeBox = faceBox & cv::Rect(0, 0, image.cols, image.rows);
+    if (safeBox.area() <= 0) return false;
+
+    bool ok = false;
+    dlib::full_object_detection landmarks = landmarksOf(image, safeBox, &ok);
+    if (!ok) return false;
+
+    // 左眼中心、右眼中心、两眼间距
+    const double leftEyeX  = (landmarks.part(36).x() + landmarks.part(39).x()) / 2.0;
+    const double rightEyeX = (landmarks.part(42).x() + landmarks.part(45).x()) / 2.0;
+    const double eyeCenterX = (leftEyeX + rightEyeX) / 2.0;
+    const double eyeDist    = std::abs(rightEyeX - leftEyeX);
+    if (eyeDist < 1.0) return false;   // 关键点异常，这一帧丢掉
+
+    // 鼻尖相对两眼中心的偏移，用两眼间距归一化
+    const double offset = (landmarks.part(30).x() - eyeCenterX) / eyeDist;
+    qDebug() << "鼻尖偏移:" << offset;
+
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+
+    // 超过 3 秒没动作，清空重来（防止用户不动卡死）
+    if (m_lastShakeTime > 0 && now - m_lastShakeTime > 3000) {
+        m_shakeDir = 0;
+        m_shakeTurnCount = 0;
+    }
+
+    // 死区：偏移太小当"正中间"，避免关键点抖动误判
+    const double deadZone = 0.06;
+    int dir = 0;
+    if (offset < -deadZone) dir = -1;
+    else if (offset > deadZone) dir = 1;
+
+    if (dir != 0 && dir != m_shakeDir) {
+        // 方向翻转
+        if (m_shakeDir != 0) {
+            const qint64 dt = now - m_lastShakeTime;
+            // 太快是抖动，太慢是慢慢挪，都不算有效翻转
+            if (dt > 120 && dt < 3000) ++m_shakeTurnCount;
+            else                       m_shakeTurnCount = 0;
+        }
+        m_shakeDir = dir;
+        m_lastShakeTime = now;
+    }
+
+    // 需要来回摆两次（左->右->左）才算"摇头"，一次可能是正常转头
+    const int SHAKE_TURNS_REQUIRED = 2;
+    if (m_shakeTurnCount >= SHAKE_TURNS_REQUIRED) {
+        m_shakeTurnCount = 0;
+        m_shakeDir = 0;
+        return true;
+    }
+    return false;
+}
+//换人、重来时把上一次残留的状态清掉。不清的话，上一个人的基线/计数会带到下一个人身上，直接导致判不出来。
+void DlibUtil::resetLivenessState()
+{
+    // 眨眼
+    m_eyeState = OPEN;
+    m_lastStateChangeTime = 0;
+    m_closedSeen = false;
+    m_openEar = 0.0;
+    // 张嘴
+    m_mouthClosedSeen = false;
+    m_mouthClosedMar = 0.0;
+    // 摇头
+    m_shakeDir = 0;
+    m_shakeTurnCount = 0;
+    m_lastShakeTime = 0;
+}

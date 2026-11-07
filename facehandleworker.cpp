@@ -33,20 +33,39 @@ void FaceHandleWorker::handleFrame(const cv::Mat& image){
         //先来做人脸加内存
         if(!faces.isEmpty()){
             qDebug()<<"人脸检测已通过...";
+            this->dlibUtil->resetLivenessState();   // ★ 新人来了，状态机清零
+            m_workState=FACE_DELECTED;
             m_workState=FACE_DELECTED;
         }
         break;
-    case FACE_DELECTED:
+        case FACE_DELECTED:
         if(faces.isEmpty()){
-            emit this->handleFrameFinished(false);   // ★ 先解锁再返回/////////////////////////////////
+            emit this->handleFrameFinished(false);
             return;
         }
-        {
-            const bool isBlinked=this->dlibUtil->dlibFaceLivenessDetect(image,faces[0].box);
-            if(isBlinked){
-                qDebug()<<"活体检测已通过.............................................";
-                m_workState=LIVENESS_DELECTED;
-            }
+        if(this->dlibUtil->dlibFaceLivenessDetect(image, faces[0].box)){
+            qDebug()<<"眨眼通过，请张嘴...";
+            m_workState=BLINK_PASSED;
+        }
+        break;
+    case BLINK_PASSED:
+        if(faces.isEmpty()){
+            emit this->handleFrameFinished(false);
+            return;
+        }
+        if(this->dlibUtil->detectMouthOpen(image, faces[0].box)){
+            qDebug()<<"张嘴通过，请摇头...";
+            m_workState=MOUTH_PASSED;
+        }
+        break;
+    case MOUTH_PASSED:
+        if(faces.isEmpty()){
+            emit this->handleFrameFinished(false);
+            return;
+        }
+        if(this->dlibUtil->detectHeadShake(image, faces[0].box)){
+            qDebug()<<"摇头通过，活体检测全部完成...";
+            m_workState=LIVENESS_DELECTED;
         }
         break;
     case LIVENESS_DELECTED:

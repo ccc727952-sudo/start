@@ -20,10 +20,12 @@ class FaceHandleWorker : public QObject
 public:
     explicit FaceHandleWorker(QObject *parent = nullptr);
     //人脸录入流程的状态
-    enum WorkState{
-        START,//等待检测到人脸
-        FACE_DELECTED,//已检测到人脸，下一步做活体检测
-        LIVENESS_DELECTED,//活体检测通过，下一步提取特征
+        enum WorkState{
+        START,              //等待检测到人脸
+        FACE_DELECTED,      //已检测到人脸，下一步做活体检测(眨眼)
+        BLINK_PASSED,       //眨眼已通过，下一步张嘴
+        MOUTH_PASSED,       //张嘴已通过，下一步摇头
+        LIVENESS_DELECTED,  //活体检测全部通过，下一步提取特征
         FEATURES_EXITRACTED //特征已提取，等待用户提交
     };
 signals:

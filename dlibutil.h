@@ -84,6 +84,14 @@ public:
     // ② 活体检测：判断这一帧里有没有发生一次"完整的眨眼"
     //    返回 true 表示检测到眨眼（真人），false 表示还没眨
     bool dlibFaceLivenessDetect(const cv::Mat& bgrImage, const cv::Rect& faceBox);
+        // ④ 张嘴检测：返回 true 表示检测到"一次完整的张嘴"（闭嘴→张开→再闭上）
+    bool detectMouthOpen(const cv::Mat& bgrImage, const cv::Rect& faceBox);
+
+    // ⑤ 摇头检测：返回 true 表示完成"一次完整摇头"（左→右→左 或反向）
+    bool detectHeadShake(const cv::Mat& bgrImage, const cv::Rect& faceBox);
+
+    // ⑥ 换人/重来的时候，把所有活体状态机清零
+    void resetLivenessState();
 
     // ③ 提取人脸特征向量（128 维），后面拿去和库里的人脸做比对
     std::vector<float> getFaceFeatures(const cv::Mat& bgrImage, const cv::Rect& faceBox);
@@ -109,6 +117,14 @@ private:
     qint64 m_lastStateChangeTime = 0;     // 上一次状态改变的时刻（毫秒）
     bool   m_closedSeen = false;   // 这次眨眼过程中，是否已经看到过"闭眼"
     double m_openEar    = 0.0;     // 这个人的"睁眼基线"，自动学习
+        // ---------------- 张嘴状态机 ----------------
+    bool   m_mouthClosedSeen = false;   // 这次张嘴过程中，是否已经看到过"张开"
+    double m_mouthClosedMar  = 0.0;     // 闭嘴时的 MAR 基线，自动学习
+
+    // ---------------- 摇头状态机 ----------------
+    int    m_shakeDir        = 0;       // 上一帧鼻尖相对眼睛中心的方向：-1左 0中 +1右
+    int    m_shakeTurnCount  = 0;       // 方向翻转次数
+    qint64 m_lastShakeTime   = 0;       // 上一次方向翻转的时间（毫秒）
 
     // dlib 的 68 点形状预测器（从 .dat 模型加载）
     dlib::shape_predictor m_sp;
@@ -126,6 +142,8 @@ private:
 
     // 计算眼睛纵横比 EAR（36~41 左眼 / 42~47 右眼）
     double calculateEAR(const dlib::full_object_detection& shape, int start, int end);
+        // 计算嘴巴纵横比 MAR（内唇 60~67）
+    double calculateMAR(const dlib::full_object_detection& shape);
 
     // 眨眼状态机：喂进 EAR 值，判断这一帧有没有完成一次眨眼
     bool detectRealBlink(double ear, qint64 currentTimeMs);
