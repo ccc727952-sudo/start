@@ -1,3 +1,4 @@
+
 #include "captureworker.h"
 #include <QDebug>
 #include <QThread>
@@ -53,7 +54,27 @@ void CaptureWorker::grabFrame(){
         this->m_isrunning=false;
         return;
     }
+    //为什么要跳帧？人脸检测+dlib推理一次要几十毫秒，摄像头每秒30帧，每一帧都出来，帧会越积越多(越处理越卡)，跳帧减少压力，又流畅又省力
+    const int seq=this->m_frameCounter.fetchAndAddOrdered(1);
+    //每5帧推一次，并且上一帧已经处理完了，并且用户特征已经提取
+    if(seq%5==0 && !this->is_processing && !this->is_detect){
+        //裁剪出【页面引导框】对应的区域，C++和QML必须抱持一致
+        int cropW = frame.cols * 0.4;
+        int cropH = cropW * 1.3;
+        int cropX = (frame.cols - cropW) / 2;
+        int cropY = (frame.rows - cropH) / 2;
+        cv::Rect roi(cropX, cropY, cropW, cropH);
+        //frame和roi引用(同一块内存)，拷贝出来
+        const cv::Mat faceRegion=frame(roi).clone();
+        //测试 裁剪后的图
+        // const QString path = "./face_test_%1.jpg";
+        // cv::imwrite(path.arg(seq).toStdString(),faceRegion);
 
+        //将裁剪好的区域，通过信号发给  人脸处理线程，跨线程的信号会自动变成队列连接，不用自己加锁
+        emit this->handleFrame(faceRegion);
+        //标记：有一帧正在处理，处理线程回报之前不在送新帧
+        this->is_processing=true;
+    }
     //BGR->RGB
     cv::cvtColor(frame,frame,cv::COLOR_BGR2RGB);
 
@@ -61,4 +82,19 @@ void CaptureWorker::grabFrame(){
     QImage image(frame.data,frame.cols,frame.rows,static_cast<int>(frame.step),QImage::Format_RGB888);
     //发信号通知做处理,发信号传递拷贝后的对象，不要传递原对象，因为Mat的内存下次会被覆盖
     emit this->onFrameReady(image.copy());
+}
+
+//人脸处理线程回报：这一帧处理完了
+void CaptureWorker::handleFrameFinished(bool isFinished){
+    //上一帧处理完了，可以再送新帧进来
+    this->is_processing=false;
+    if(isFinished){
+        //用户特征已经提取，等待管理员填写 信息、提交、提交完成之前不再处理新帧
+        this->is_detect=true;
+    }
+}
+//停掉采集定时器，因为定时器在CaptureWorker，发信号让CaptureWorker自己停止采集线程
+void CaptureWorker::stopTimer(){
+    //停掉定时器，停掉后定时器就不在了，避免析构时也不再报错
+    this->timer->stop();
 }

@@ -12,6 +12,11 @@ FaceInputManager::FaceInputManager(QObject *parent)
     this->capWorkerThread=new QThread;
     this->capWorker->moveToThread(this->capWorkerThread);
 
+    this->faceHandleWorker=new FaceHandleWorker;
+    //移动到子线程中去执行
+    this->faceHandleWorkerThread=new QThread;
+    this->faceHandleWorker->moveToThread(this->faceHandleWorkerThread);
+
     //绑定信号和槽
     //跨线程的信号与槽变成队列连接，槽函数是在槽对象所属的线程中指向
     //通知子线程的woker打开/关闭摄像头
@@ -22,12 +27,25 @@ FaceInputManager::FaceInputManager(QObject *parent)
     //摄像头有错误，通知
     connect(this->capWorker,&CaptureWorker::errorOccurred,this,&FaceInputManager::errorOccurred);
 
+    //采集线程->处理线程：把裁剪好的引导框区域送过去
+    connect(this->capWorker,&CaptureWorker::handleFrame,this->faceHandleWorker,&FaceHandleWorker::handleFrame);
+    //处理线程->采集线程：报告这一帧处理完了
+    connect(this->faceHandleWorker,&FaceHandleWorker::handleFrameFinished,this->capWorker,&CaptureWorker::handleFrameFinished);
+
     //开启子线程
     this->capWorkerThread->start();
+    this->faceHandleWorkerThread->start();
 }
 
 //析构函数
 FaceInputManager::~FaceInputManager(){
+
+    //先让采集线程自己停止定时器
+    QMetaObject::invokeMethod(this->capWorker,"stopTimer",Qt::BlockingQueuedConnection);
+    this->faceHandleWorkerThread->quit();//让线程的事件循环退出
+    this->faceHandleWorkerThread->wait();//等它真的退出
+    delete this->faceHandleWorkerThread; //必须在wait之后删除
+
     this->capWorkerThread->quit();//让线程的事件循环退出
     this->capWorkerThread->wait();//等它真的退出
     delete this->capWorker; //必须在wait之后删除

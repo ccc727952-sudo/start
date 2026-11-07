@@ -10,9 +10,18 @@ set(CMAKE_CXX_STANDARD 17)
 set(OpenCV_ROOT_DIR "D:/WorkProgram/opencv/opencv/opencv-4.8.0/build/install")
 
 find_package(Qt6 REQUIRED COMPONENTS Quick Multimedia)
+# dlib路径和查找
+set(dlib_DIR "D:/WorkProgram/dlib/build/install/lib/cmake/dlib")
+find_package(dlib REQUIRED)
 
 qt_standard_project_setup(REQUIRES 6.8)
-
+# 坑：中文注释会"吃掉"代码MSVC 默认按系统 ANSI 代码页（中文机器 = GBK）解析源码。
+# 我们写的注释是 UTF-8 的，某些汉字的字节在 GBK 里会被当成反斜杠 + 换行的转义 —— 后面的代码就被当成注释吞掉了，
+# 报错还报在莫名其妙的地方。
+# 解决办法（CMakeLists.txt 里加一行）：
+if(MSVC)
+ add_compile_options(/utf-8)
+endif()
 # Content of downloaded design from Figma to Qt or similar
 if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/importedcontent/CMakeLists.txt")
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/importedcontent)
@@ -31,6 +40,10 @@ QML_FILES LabeledTextField.qml Login.qml
 QML_FILES FaceInput.qml
 SOURCES captureworker.h captureworker.cpp
 SOURCES faceinputmanager.h faceinputmanager.cpp
+SOURCES facehandleworker.h facehandleworker.cpp
+RESOURCES resources.qrc
+SOURCES facedetector.cpp facedetector.h modelpaths.cpp modelpaths.h
+SOURCES dlibutil.cpp dlibutil.h
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -76,11 +89,19 @@ else()
         opencv_imgcodecs480
         opencv_videoio480
         opencv_highgui480
+        opencv_dnn480
+        opencv_imgcodecs480
     )
 endif()
+
+# 【模型目录】编译进程序（modelpaths.cpp 里再用环境变量 FACE_MODEL_DIR 覆盖）
+target_compile_definitions(appaccessControlSystem_faceInput PRIVATE
+    FACE_MODEL_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources/model"
+)
 target_link_libraries(appaccessControlSystem_faceInput
     PRIVATE Qt6::Quick
     Qt6::Multimedia
+    dlib::dlib
 )
 
 install(TARGETS appaccessControlSystem_faceInput

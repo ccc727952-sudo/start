@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QVideoSink>
 #include "captureworker.h"
+#include "facehandleworker.h"
 
 /* FaceInputManager人脸录入管理器  C++与QML之间的门面
  * 它做三件事：
@@ -55,6 +56,10 @@ private:
     CaptureWorker* capWorker=nullptr;//采集线程的worker
     QThread* capWorkerThread=nullptr;//承载采集线程的worker的线程
     QVideoSink *m_displaySink=nullptr;//QML的VideoOutput提供的sink
+    //人脸处理线程的faceHandleWorker
+    FaceHandleWorker *faceHandleWorker=nullptr;
+    //开启人脸处理线程
+    QThread* faceHandleWorkerThread=nullptr;
 };
 
 #endif // FACEINPUTMANAGER_H

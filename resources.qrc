@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/model/dlib_face_recognition_resnet_model_v1.dat</file>
+        <file>resources/model/face_detection_yunet_2023mar.onnx</file>
+        <file>resources/model/shape_predictor_68_face_landmarks.dat</file>
+        <file>resources/model/yolo-face.onnx</file>
+    </qresource>
+</RCC>

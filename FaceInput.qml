@@ -53,6 +53,17 @@ Item {
                     //画面修正，水平镜像(摄像头画面是反的)
                     transform: Scale{xScale: -1;origin.x:previewOutput.width/2}
                 }
+                // 人脸引导框：固定在画面中央
+                Rectangle {
+                    id: faceGuide
+                    width: parent.width * 0.55
+                    height: width * 1.3  // 人脸大致比例
+                    anchors.centerIn: parent
+                    color: "transparent"
+                    border.color: "#00FF00"
+                    border.width: 2
+                    radius: 8
+                }
                 Text{
                     anchors.centerIn: parent
                     text:"点击【开始采集】预览画面"
