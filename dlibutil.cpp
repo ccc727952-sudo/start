@@ -23,8 +23,8 @@
 // =============================================================================
 
 // 眨眼判定的两个时间阈值（毫秒）
-static const qint64 MIN_BLINK_MS = 50;    // 闭眼至少要超过这么久，才算"真的闭上"
-static const qint64 MAX_BLINK_MS = 3000;  // 闭眼最多持续这么久，超过说明是"闭着眼不动"
+// static const qint64 MIN_BLINK_MS = 50;    // 闭眼至少要超过这么久，才算"真的闭上"
+// static const qint64 MAX_BLINK_MS = 3000;  // 闭眼最多持续这么久，超过说明是"闭着眼不动"
 
 DlibUtil::DlibUtil(QObject* parent)
     : QObject{parent}
@@ -129,6 +129,9 @@ bool DlibUtil::dlibFaceLivenessDetect(const cv::Mat& image, const cv::Rect& face
 
     // ③ 喂给眨眼状态机
     //   眨眼 = 睁眼 -> 闭眼 -> 睁眼 的完整过程
+        // 睁眼基线：取历史最大值，并给一个兜底值
+    if (avgEar > m_openEar) m_openEar = avgEar;
+    if (m_openEar < 0.20)   m_openEar = 0.30;
     return detectRealBlink(avgEar, QDateTime::currentMSecsSinceEpoch());//返回是否是眨眼状态机的判断结果
 }
 
@@ -253,46 +256,21 @@ double DlibUtil::calculateEAR(const dlib::full_object_detection& shape,
 // =============================================================================
 bool DlibUtil::detectRealBlink(double ear, qint64 currentTimeMs)
 {
-    // EAR > 0.25 认为是睁眼，否则是闭眼
-    const bool isOpen = (ear > 0.25);
-    bool blinkDetected = false;
+    Q_UNUSED(currentTimeMs);
 
-    switch (m_eyeState) {
-    case OPEN:
-        if (!isOpen) {
-            m_eyeState = CLOSING;
-            m_lastStateChangeTime = currentTimeMs;
-        }
-        break;
+    const double openEar = (m_openEar > 0.20) ? m_openEar : 0.30;
 
-    case CLOSING:
-        if (!isOpen) {
-            // 闭眼时间要超过 50ms 才算数
-            if (currentTimeMs - m_lastStateChangeTime > MIN_BLINK_MS) {
-                m_eyeState = CLOSED;
-            }
-        } else {
-            m_eyeState = OPEN;   // 只是眨眼的一瞬间，回到睁眼
-        }
-        break;
-
-    case CLOSED:
-        if (isOpen) {
-            const qint64 closedMs = currentTimeMs - m_lastStateChangeTime;
-            if (closedMs <= MAX_BLINK_MS) {
-                // 闭眼时间在 3 秒以内 → 是一次有效眨眼
-                blinkDetected = true;
-            } else {
-                // 闭眼太久 → 这次不算，重新开始计时
-                m_lastStateChangeTime = currentTimeMs;
-            }
-            m_eyeState = OPEN;
-        }
-        break;
-
-    default:
-        break;
+    // 明显比睁眼时小 → 记下"这次闭过眼"
+    if (ear < openEar * 0.72) {
+        m_closedSeen = true;
+        return false;
     }
 
-    return blinkDetected;
+    // 之前闭过、现在又睁开了 → 判定为一次眨眼
+    if (m_closedSeen && ear > openEar * 0.88) {
+        m_closedSeen = false;
+        return true;
+    }
+
+    return false;
 }

@@ -78,7 +78,7 @@ void CaptureWorker::grabFrame(){
     //为什么要跳帧？人脸检测+dlib推理一次要几十毫秒，摄像头每秒30帧，每一帧都出来，帧会越积越多(越处理越卡)，跳帧减少压力，又流畅又省力
     const int seq=this->m_frameCounter.fetchAndAddOrdered(1);//获取当前帧序号
     //每5帧推一次，并且上一帧已经处理完了，并且用户特征已经提取
-    if(seq%5==0 && !this->is_processing && !this->is_detect){
+        if(seq%2==0 && !this->is_processing && !this->is_detect){//改为了每2帧推一次，因为每2帧处理一次，每2帧提取一次特征，所以每2帧推一次
         //裁剪出【页面引导框】对应的区域，C++和QML必须抱持一致
         int cropW = frame.cols * 0.4;
         int cropH = cropW * 1.3;
@@ -96,6 +96,10 @@ void CaptureWorker::grabFrame(){
         //标记：有一帧正在处理，处理线程回报之前不在送新帧
         this->is_processing=true;
     }
+
+
+
+
     //BGR->RGB
     cv::cvtColor(frame,frame,cv::COLOR_BGR2RGB);
 

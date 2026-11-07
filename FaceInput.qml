@@ -60,7 +60,7 @@ Item {
                 // 人脸引导框：固定在画面中央
                 Rectangle {
                     id: faceGuide
-                    width: parent.width * 0.55
+                    width: parent.width * 0.4
                     height: width * 1.3  // 人脸大致比例
                     anchors.centerIn: parent
                     color: "transparent"

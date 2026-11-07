@@ -107,6 +107,8 @@ private:
     };
     EyeState m_eyeState = OPEN;          // 当前状态
     qint64 m_lastStateChangeTime = 0;     // 上一次状态改变的时刻（毫秒）
+    bool   m_closedSeen = false;   // 这次眨眼过程中，是否已经看到过"闭眼"
+    double m_openEar    = 0.0;     // 这个人的"睁眼基线"，自动学习
 
     // dlib 的 68 点形状预测器（从 .dat 模型加载）
     dlib::shape_predictor m_sp;

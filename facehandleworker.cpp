@@ -5,6 +5,7 @@
 */
 #include "facehandleworker.h"
 #include <QDebug>
+#include <algorithm>//排序
 FaceHandleWorker::FaceHandleWorker(QObject *parent)
     : QObject{parent}
 {
@@ -19,7 +20,11 @@ FaceHandleWorker::FaceHandleWorker(QObject *parent)
 void FaceHandleWorker::handleFrame(const cv::Mat& image){
     bool isFinished=false;
     //人脸录入流程： 人脸检测->活体检测->特征向量提取->之后保存
-    const auto faces=this->faceDetector->detect(image);
+    auto faces=this->faceDetector->detect(image);
+    std::sort(faces.begin(), faces.end(),
+              [](const FaceDetection& a, const FaceDetection& b){
+                  return a.box.area() > b.box.area();
+              });
     qDebug()<<"(检测)本帧人脸数："<<faces.size()<<
         "当前状态(0=等检测  1=已检测  2=活体通过  3=特征已提取)"<<int(m_workState);
 
@@ -32,9 +37,9 @@ void FaceHandleWorker::handleFrame(const cv::Mat& image){
         }
         break;
     case FACE_DELECTED:
-        //活体检测，眨眼
         if(faces.isEmpty()){
-            return;//这一帧丢了
+            emit this->handleFrameFinished(false);   // ★ 先解锁再返回/////////////////////////////////
+            return;
         }
         {
             const bool isBlinked=this->dlibUtil->dlibFaceLivenessDetect(image,faces[0].box);
