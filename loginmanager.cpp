@@ -56,3 +56,32 @@ bool LoginManager::login(const QString &account, const QString &password)
     emit loginSuccess(account); //发信号告诉 QML
     return true;
 }
+
+// 【注册新账号】
+//   注意：账号表是成员变量，所以注册页必须复用【登录页那一个】LoginManager 实例，
+//   否则注册进的是另一张表，登录时照样查不到。
+bool LoginManager::registerAccount(const QString &account, const QString &password)
+{
+    qDebug() << "[C++] 收到注册请求: 账号 =" << account;
+
+    //① 空值校验
+    if (account.isEmpty() || password.isEmpty()) {
+        const QString msg = "账号和密码不能为空";
+        emit registerFailed(msg);
+        return false;
+    }
+
+    //② 账号重复校验
+    if (m_validAccounts.contains(account)) {
+        const QString msg = "账号已存在，请换一个";
+        emit registerFailed(msg);
+        return false;
+    }
+
+    //③ 写入账号表
+    m_validAccounts << account;
+    m_validPasswords << password;
+    qDebug() << "[C++] 注册成功:" << account;
+    emit registerSuccess(account);
+    return true;
+}

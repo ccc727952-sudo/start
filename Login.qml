@@ -155,8 +155,8 @@ Item {
               id: btnRegister
               text: "注册"
               font.pointSize: 14
-              //注册模态框
-              onClicked: infoDialog.open()
+              // ★ 把登录页自己的 LoginManager 传给注册页，两边共用同一张账号表
+              onClicked: loginPage.stackView.push("Register.qml", { manager: loginManager })
             }
             
         }

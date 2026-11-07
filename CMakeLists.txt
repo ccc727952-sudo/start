@@ -58,6 +58,7 @@ qt_add_qml_module(appaccessControlSystem_faceInput
         Main.qml
 SOURCES loginmanager.cpp loginmanager.h
 QML_FILES LabeledTextField.qml Login.qml
+QML_FILES Register.qml#自研注册页面的qml
 QML_FILES FaceInput.qml
 SOURCES captureworker.h captureworker.cpp
 SOURCES faceinputmanager.h faceinputmanager.cpp
