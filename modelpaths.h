@@ -1,3 +1,7 @@
+/*
+ * @brief 模型文件路径管理// 负责管理模型文件的路径// 包含模型文件的绝对路径、相对路径等功能。
+ * 
+*/
 #ifndef MODELPATHS_H
 #define MODELPATHS_H
 
