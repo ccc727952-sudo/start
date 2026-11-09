@@ -7,6 +7,19 @@
 #include <QVideoFrameFormat>
 #include <QVideoFrame>
 #include <cstring>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QNetworkRequest>
+#include <QUrl>
+#include <QDebug>
+#include <qstringliteral.h>
+
+static const QString API_BASE=QStringLiteral("http://localhost:80");
+
+//模拟接口    布尔ture   "true"，字符串会返回false，需要处理兼容性
+static bool isSuccess(const QJsonValue& v){
+    return v.isBool()?v.toBool():(v.toString()==QStringLiteral("true"));
+}
 
 
 FaceInputManager::FaceInputManager(QObject *parent)
@@ -21,7 +34,7 @@ FaceInputManager::FaceInputManager(QObject *parent)
     //移动到子线程中去执行
     this->faceHandleWorkerThread=new QThread;
     this->faceHandleWorker->moveToThread(this->faceHandleWorkerThread);
-
+    this->manager=new QNetworkAccessManager(this);//http请求管理器创建对象
     //绑定信号和槽
     //跨线程的信号与槽变成队列连接，槽函数是在槽对象所属的线程中指向
     //通知子线程的woker打开/关闭摄像头
@@ -112,7 +125,52 @@ void FaceInputManager::receiveFaceFeatures(const std::vector<float>& features){
     this->features=features;
 }
 
+//按住户编号查询信息(QML的“查询”按钮调用)
+void FaceInputManager::queryUserInfo(const QString& sn){
+    if(sn.isEmpty()){
+        emit errorOccurred("获取用户信息失败，用户编号不能为空!");
+        return;
+    }
+    //1.拼URL
+    const QString url=API_BASE+QStringLiteral("/getuser.json?sn=%1").arg(sn);
+    qDebug()<<"[Http] Get "<<url;
+    //2.发起异步Get
+    QNetworkReply* reply=this->manager->get(QNetworkRequest(QUrl(url)));
+    connect(reply,&QNetworkReply::finished,this,[reply,this](){
+        //响应内容
+        const QByteArray data=reply->readAll();
+        reply->deleteLater();
+        const QJsonDocument doc=QJsonDocument::fromJson(data);
+        qDebug()<<"[HTTP] 住户信息: "<<doc.object();
+        emit this->showUserData(doc.object());
+    });
+}
 
+//发送验证码(QML的“发送验证码”按钮调用)
+void FaceInputManager::sendVerifyCode(const QString& phone){
+    if(phone.isEmpty()){
+        emit errorOccurred("发送验证码失败，手机号不能为空!");
+        return;
+    }
+    //1.拼URL:
+    const QString url=API_BASE+QStringLiteral("/getcode.json?phone=%1").arg(phone);
+    qDebug()<<"[Http] Get "<<url;
+    //2.发起异步Get
+    QNetworkReply* reply=this->manager->get(QNetworkRequest(QUrl(url)));
+    connect(reply,&QNetworkReply::finished,this,[reply,this](){
+        //响应内容
+        const QByteArray data=reply->readAll();
+        //防止内存泄露
+        reply->deleteLater();
+        const QJsonObject obj=QJsonDocument::fromJson(data).object();
+        qDebug()<<"[HTTP] 验证码接口返回: "<<obj;
+        if(isSuccess(obj.value("success"))){
+            emit errorOccurred("验证码发送成功，请注意查收！");
+        }else{
+            emit errorOccurred("验证码发送失败，请重新点击发送！");
+        }
+    });
+}
 
 
 

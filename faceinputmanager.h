@@ -35,7 +35,7 @@ class FaceInputManager : public QObject
     // QML那边的VideoOutput提供一个videoSink 是一个QVideoSink类型的C++对象，本质上是一个VideoOutput内部用来接收视频帧的“入口”或“插槽”
     //并且赋值后  QML侧的绑定能够自动刷新
     Q_PROPERTY(QVideoSink* displaySink READ getDisplaySink WRITE setDisplaySink NOTIFY displaySinkChanged)
-
+    
 public:
     explicit FaceInputManager(QObject *parent = nullptr);
 
@@ -50,6 +50,11 @@ public:
     //供QML页面调用：打开/关闭摄像头
     Q_INVOKABLE void openCamera(int index);
     Q_INVOKABLE void closeCamera(int type);
+    //查询住户信息
+    Q_INVOKABLE void queryUserInfo(const QString& sn);
+    //发送手机验证码请求(QML的"查询"按钮调用)
+    Q_INVOKABLE void sendVerifyCode(const QString& phone);
+    
 signals:
     //通知子线程里面的CaptureWorker打开/关闭摄像头
     void notifyOpenCamera(int index);

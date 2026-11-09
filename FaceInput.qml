@@ -12,6 +12,8 @@ import cn.rh
 //人脸录入界面
 Item {
     id:faceInputPage
+    //住户信息，将返回的json直接注入
+    property var users: {"sn":"","phone":"","name":"","address":""}
     //定义一个属性，接收当前摄像头是否开始
     property bool isOpen: false
 
@@ -134,22 +136,54 @@ Item {
                        font.bold: true
                        Layout.alignment: Qt.AlignHCenter
                    }
-                   LabeledTextField {
-                       id: idRow
-                       labelText: "住户编号:"
-                   }
+                   RowLayout{
+                        LabeledTextField {
+                            id: idRow
+                            labelText: "住户编号:"
+                        }
+                        Button{
+                            id:btnQuery
+                            text:"查询"
+                            onClicked: {
+                                //按住户编号查询后端
+                                faceInputManager.queryUserInfo(idRow.text);
+                            }
+                        }
+                    }
                    LabeledTextField {
                        id: nameRow
                        labelText: "住户姓名:"
+                       enabled: false
+                       text: users.name
                    }
                    LabeledTextField {
                        id: phoneRow
                        labelText: "住户电话:"
+                       enabled: false
+                       text: users.phone
                    }
                    LabeledTextField {
                        id: addressRow
                        labelText: "住户地址:"
+                       enabled: false
+                       text: users.address
                    }
+                   RowLayout{
+                    Layout.fillWidth: true
+                    TextField {
+                        id:verifyCodeInput
+                        placeholderText: "请输入手机验证码"
+                        Layout.preferredWidth: 120
+                        Layout.fillWidth: true
+                    }
+                    Button{
+                        id:btnVerifyCode
+                        text:"获取验证码"
+                        onClicked: {
+                            faceInputManager.sendVerifyCode(phoneRow.text);
+                        }
+                    }
+                }
                 }
             }
         }
@@ -207,10 +241,13 @@ Item {
     }
     Connections{
         target: faceInputManager
-        function onErrorOccurred(message){
+        function onErrorOccurred(message){//显示错误信息
             errorDialog.text=message
             //打开模态框，模态默认关闭
             errorDialog.open()
+        }
+        function onShowUserData(obj){//显示用户信息
+            users=obj
         }
     }
 }
