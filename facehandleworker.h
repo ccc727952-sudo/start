@@ -39,6 +39,7 @@ signals:
 public slots:
     //收到一帧图像，做  人脸识别  -> 活体检测  ->特征提取
     void handleFrame(const cv::Mat& image);
+    void resetWorkState();//处理子线程状态机回到START
 private:
     //人脸检测  YOLO-face
     FaceDetector *faceDetector=nullptr;

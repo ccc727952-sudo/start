@@ -54,7 +54,9 @@ public:
     Q_INVOKABLE void queryUserInfo(const QString& sn);
     //发送手机验证码请求(QML的"查询"按钮调用)
     Q_INVOKABLE void sendVerifyCode(const QString& phone);
-    
+    //提交住户 + 人脸特征(QML的"提交"按钮调它)
+    Q_INVOKABLE void saveData(const QJsonObject& obj, const QString& verifyCode);
+
 signals:
     //通知子线程里面的CaptureWorker打开/关闭摄像头
     void notifyOpenCamera(int index);
@@ -67,6 +69,10 @@ signals:
     void livenessPrompt(const QString &text);
     //查询到住户信息后，把JSON对象交给QML回填表单
     void showUserData(const QJsonObject& obj);
+    //提交成功后，让两个子线程"重新开工"，迎接下一位住户
+    void resetCapture();//采集子线程：清理状态
+    void resetWorkState();//处理子线程状态机回到START
+
 public slots:
     //worker采集到帧后，通过信号通知，在这里操作QML可以显示的对象
     void onFrameReady(const QImage &image);

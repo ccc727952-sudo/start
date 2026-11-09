@@ -54,6 +54,10 @@ FaceInputManager::FaceInputManager(QObject *parent)
         //处理线程->界面：把活体引导提示转发给QML
     //信号连信号，跨线程自动变队列连接，不用加锁
     connect(this->faceHandleWorker,&FaceHandleWorker::livenessPrompt,this,&FaceInputManager::livenessPrompt);
+    //复位信号
+    connect(this,&FaceInputManager::resetCapture,this->capWorker,&CaptureWorker::resetDetect);
+    connect(this,&FaceInputManager::resetWorkState,this->faceHandleWorker,&FaceHandleWorker::resetWorkState);
+
     //开启子线程
     this->capWorkerThread->start();
     this->faceHandleWorkerThread->start();
@@ -172,6 +176,53 @@ void FaceInputManager::sendVerifyCode(const QString& phone){
     });
 }
 
+//提交住户 + 人脸特征(QML的"提交"按钮调它)
+void FaceInputManager::saveData(const QJsonObject& obj,const QString& verifyCode){
+    //1.从QML传递来的JSON对象里取值
+    const QString sn=obj.value("sn").toString();
+    const QString name=obj.value("name").toString();
+    const QString phone=obj.value("phone").toString();
+    const QString address=obj.value("address").toString();
+    //2.五项都要非空才能提交
+    if(sn.isEmpty() || name.isEmpty() || phone.isEmpty() || address.isEmpty()){
+        emit errorOccurred("提交失败，信息不能为空！");
+        return;
+    }
+
+    //3.人脸特征也不能为空，没采集就提交，不能过
+    if(this->features.empty()){
+        emit errorOccurred("请先采集人脸信息后再点击提交！");
+        return;
+    }
+
+    //4.vector<float>转成Base64文本
+    const QByteArray raw(reinterpret_cast<const char*>(this->features.data()),
+                         static_cast<int>(this->features.size()*sizeof(float)));
+    const QString featuresText=QString::fromLatin1(raw.toBase64());
+    qDebug()<<"【录入】特征原始字节："<<raw.size()<<" Base64长度"<<featuresText.size();
+    const QString url=API_BASE+QStringLiteral("/savefacefeature.json?sn=%1&name=%2&phone=%3&address=%4&verifyCode=%5")
+                        .arg(sn,name,phone,address,verifyCode,featuresText);
+    qDebug()<<"[HTTP] Get提交: "<<url;
+
+    QNetworkReply* reply=this->manager->get(QNetworkRequest(QUrl(url)));
+    connect(reply,&QNetworkReply::finished,this,[reply,this](){
+        //响应内容
+        const QByteArray data=reply->readAll();
+        //防止内存泄露
+        reply->deleteLater();
+        const QJsonObject obj=QJsonDocument::fromJson(data).object();
+        qDebug()<<"[HTTP] 提交保存人脸特征向量接口返回: "<<obj;
+        if(isSuccess(obj.value("success"))){
+            emit errorOccurred("提交成功！");
+            //提交完成放开采集，状态机恢复，才能继续录入下一个人
+            this->features.clear();
+            emit this->resetCapture();
+            emit this->resetWorkState();
+        }else{
+            emit errorOccurred("提交失败，请重新提交！");
+        }
+    });
+}
 
 
 

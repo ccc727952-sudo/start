@@ -139,3 +139,9 @@ void FaceHandleWorker::handleFrame(const cv::Mat& image){
     // //告诉采集线程：这一帧处理完了，可以送下一帧
     // emit this->handleFrameFinished(false);
 }
+
+void FaceHandleWorker::resetWorkState(){
+    m_workState=START;
+    SpeechUtils::getInstance().speak("开始采集，请正对摄像头!",2500);
+    qDebug()<<"【处理】状态就已经复位START";
+}

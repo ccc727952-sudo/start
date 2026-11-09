@@ -123,3 +123,9 @@ void CaptureWorker::stopTimer(){
     //停掉定时器，停掉后定时器就不在了，避免析构时也不再报错
     this->timer->stop();
 }
+//提交完成后，重新运行送帧
+void CaptureWorker::resetDetect(){
+    this->is_detect=false;
+    this->is_processing=false;
+    qDebug()<<"【采集】已经复位，可以继续送帧了";
+}

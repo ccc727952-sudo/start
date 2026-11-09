@@ -64,7 +64,8 @@ public slots:
     void handleFrameFinished(bool isFinished);
     //停掉采集定时器，因为定时器在CaptureWorker，发信号让CaptureWorker自己停止采集线程
     void stopTimer();
-
+    //提交完成后，重新运行送帧
+    void resetDetect();
 private:
     //定时器
     QTimer *timer=nullptr;

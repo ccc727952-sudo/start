@@ -219,6 +219,7 @@ Item {
                 //点击事件
                 onClicked:{
                     console.log("提交",idRow.text,nameRow.text)
+                    faceInputManager.saveData(users,verifyCodeInput.text)
                 }
             }
             Button{
