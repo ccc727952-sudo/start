@@ -111,6 +111,6 @@ int main(int argc, char *argv[])
     qmlRegisterType<FaceInputManager>("cn.rh", 1, 0, "FaceInputManager");
     engine.loadFromModule("accessControlSystem_faceInput", "Main");
     qDebug()<<"OpenCV 版本："<<CV_VERSION;
-    test2();
+    //test2();
     return QGuiApplication::exec();
 }

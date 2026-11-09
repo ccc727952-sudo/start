@@ -17,7 +17,7 @@ set(CMAKE_CXX_STANDARD 17)# 设置 C++ 标准为 17
 set(OpenCV_ROOT_DIR "D:/WorkProgram/opencv/opencv/opencv-4.8.0/build/install")# 设置 OpenCV 安装目录
 
 #find_package 函数用于查找指定的库或头文件
-find_package(Qt6 REQUIRED COMPONENTS Quick Multimedia)# 查找 Qt6 库
+find_package(Qt6 REQUIRED COMPONENTS Quick Multimedia TextToSpeech Network)# 查找 Qt6 库
 # dlib路径和查找
 set(dlib_DIR "D:/WorkProgram/dlib/build/install/lib/cmake/dlib")# 设置 dlib 安装目录
 #find_package 函数用于查找指定的库或头文件
@@ -66,6 +66,7 @@ SOURCES facehandleworker.h facehandleworker.cpp
 RESOURCES resources.qrc
 SOURCES facedetector.cpp facedetector.h modelpaths.cpp modelpaths.h
 SOURCES dlibutil.cpp dlibutil.h
+SOURCES speechutils.h speechutils.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -124,6 +125,8 @@ target_link_libraries(appaccessControlSystem_faceInput
     PRIVATE Qt6::Quick
     Qt6::Multimedia
     dlib::dlib
+    Qt6::TextToSpeech
+    Qt6::Network
 )
 
 install(TARGETS appaccessControlSystem_faceInput

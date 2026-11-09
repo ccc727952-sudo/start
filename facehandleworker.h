@@ -9,6 +9,7 @@
 #include <opencv2/opencv.hpp>
 #include "facedetector.h"
 #include "dlibutil.h"
+#include <vector>
 
 //前向声明，占位
 // class FaceDetector;
@@ -33,6 +34,8 @@ signals:
     void handleFrameFinished(bool isFinished);
         //活体检测引导提示：给QML显示"请眨眼 / 请张嘴 / 请摇头"
     void livenessPrompt(const QString &text);
+    //把128维特征向量交给主线程保存，提交时要上传给后端
+    void sendFaceFeaturce(const std::vector<float>& features);
 public slots:
     //收到一帧图像，做  人脸识别  -> 活体检测  ->特征提取
     void handleFrame(const cv::Mat& image);

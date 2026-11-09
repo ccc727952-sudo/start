@@ -6,13 +6,15 @@
 #include "facehandleworker.h"
 #include <QDebug>
 #include <algorithm>//排序
+#include "speechutils.h"
+
 FaceHandleWorker::FaceHandleWorker(QObject *parent)
     : QObject{parent}
 {
     //在这里创建 faceDetector和dlibUtil
     this->faceDetector=new FaceDetector;
     this->dlibUtil=new DlibUtil;
-
+    SpeechUtils::getInstance().speak("开始采集，请正对摄像头!",2500);
 }
 //发引导提示：同一句话只发一次，避免每帧刷屏
 void FaceHandleWorker::emitPrompt(const QString &text)
@@ -79,6 +81,7 @@ void FaceHandleWorker::handleFrame(const cv::Mat& image){
         if(this->dlibUtil->detectHeadShake(image, faces[0].box)){
             qDebug()<<"摇头通过，活体检测全部完成...";
             m_workState=LIVENESS_DELECTED;
+            SpeechUtils::getInstance().speak("活体检测已通过!",3000);
             this->emitPrompt("活体检测通过，正在提取特征...");  // ★ 提示
         }
         break;
@@ -93,6 +96,9 @@ void FaceHandleWorker::handleFrame(const cv::Mat& image){
             if(!features.empty()){
                 qDebug()<<"已经提取到人脸特征向量，可以准备提交数据了...";
                 qDebug()<<features;
+                SpeechUtils::getInstance().speak("采集成功，请填写基本信息后点击提交",4000);
+                //把特征向量发送给主线程
+                emit this->sendFaceFeaturce(features);
                 m_workState=FEATURES_EXITRACTED;
                 this->emitPrompt("录入完成，请填写人员信息");  // ★ 提示
                 //特征已提取，暂时不要处理下一帧，等到管理员填写完业主信息后才放开

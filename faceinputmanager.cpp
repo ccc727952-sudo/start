@@ -8,6 +8,7 @@
 #include <QVideoFrame>
 #include <cstring>
 
+
 FaceInputManager::FaceInputManager(QObject *parent)
     : QObject{parent}
 {
@@ -35,6 +36,8 @@ FaceInputManager::FaceInputManager(QObject *parent)
     connect(this->capWorker,&CaptureWorker::handleFrame,this->faceHandleWorker,&FaceHandleWorker::handleFrame);
     //处理线程->采集线程：报告这一帧处理完了
     connect(this->faceHandleWorker,&FaceHandleWorker::handleFrameFinished,this->capWorker,&CaptureWorker::handleFrameFinished);
+    //处理线程->主线程，收到特征向量存入features
+    connect(this->faceHandleWorker,&FaceHandleWorker::sendFaceFeaturce,this,&FaceInputManager::receiveFaceFeatures);
         //处理线程->界面：把活体引导提示转发给QML
     //信号连信号，跨线程自动变队列连接，不用加锁
     connect(this->faceHandleWorker,&FaceHandleWorker::livenessPrompt,this,&FaceInputManager::livenessPrompt);
@@ -101,6 +104,12 @@ void FaceInputManager::onFrameReady(const QImage &image){
     frame.unmap();
     //拿到  frame后交给 m_displaySink，由QML做展示
     this->m_displaySink->setVideoFrame(frame);
+}
+
+//处理线程送来的128维特征，存起来等待提交
+void FaceInputManager::receiveFaceFeatures(const std::vector<float>& features){
+    qDebug()<<"录入收到人脸特征，维度"<<features.size();
+    this->features=features;
 }
 
 

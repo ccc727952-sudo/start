@@ -11,6 +11,11 @@
 #include <QVideoSink>
 #include "captureworker.h"
 #include "facehandleworker.h"
+#include <QNetworkAccessManager>// 网络访问管理器，负责发送网络请求
+#include <QNetworkReply>// 网络回复对象，负责接收服务器响应
+#include <QJsonObject>// JSON对象，用于解析服务器响应的JSON数据
+#include <vector>// 向量容器，用于存储128维特征向量
+
 
 /* FaceInputManager人脸录入管理器  C++与QML之间的门面
  * 它做三件事：
@@ -55,9 +60,13 @@ signals:
     void errorOccurred(const QString &message);
         //活体检测引导提示（转发给QML）
     void livenessPrompt(const QString &text);
+    //查询到住户信息后，把JSON对象交给QML回填表单
+    void showUserData(const QJsonObject& obj);
 public slots:
     //worker采集到帧后，通过信号通知，在这里操作QML可以显示的对象
     void onFrameReady(const QImage &image);
+    //处理线程送来的128维特征，存起来等待提交
+    void receiveFaceFeatures(const std::vector<float>& features);
 private:
     CaptureWorker* capWorker=nullptr;//采集线程的worker
     QThread* capWorkerThread=nullptr;//承载采集线程的worker的线程
@@ -66,6 +75,10 @@ private:
     FaceHandleWorker *faceHandleWorker=nullptr;
     //开启人脸处理线程
     QThread* faceHandleWorkerThread=nullptr;
+    //HTTP请求管理器
+    QNetworkAccessManager* manager=nullptr;
+    //当前这位住户的人脸特征向量
+    std::vector<float> features;
 };
 
 #endif // FACEINPUTMANAGER_H
