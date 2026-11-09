@@ -177,6 +177,11 @@ void FaceInputManager::sendVerifyCode(const QString& phone){
 }
 
 //提交住户 + 人脸特征(QML的"提交"按钮调它)
+/*
+* @brief 提交住户 + 人脸特征(QML的"提交"按钮调它)
+* @param obj 住户信息JSON对象
+* @param verifyCode 验证码
+*/
 void FaceInputManager::saveData(const QJsonObject& obj,const QString& verifyCode){
     //1.从QML传递来的JSON对象里取值
     const QString sn=obj.value("sn").toString();
@@ -200,8 +205,8 @@ void FaceInputManager::saveData(const QJsonObject& obj,const QString& verifyCode
                          static_cast<int>(this->features.size()*sizeof(float)));
     const QString featuresText=QString::fromLatin1(raw.toBase64());
     qDebug()<<"【录入】特征原始字节："<<raw.size()<<" Base64长度"<<featuresText.size();
-    const QString url=API_BASE+QStringLiteral("/savefacefeature.json?sn=%1&name=%2&phone=%3&address=%4&verifyCode=%5")
-                        .arg(sn,name,phone,address,verifyCode,featuresText);
+    const QString url=API_BASE+QStringLiteral("/savefacefeature.json?sn=%1&name=%2&phone=%3&address=%4&verifyCode=%5&features=%6")
+                        .arg(sn,name,phone,address,verifyCode,featuresText,featuresText);
     qDebug()<<"[HTTP] Get提交: "<<url;
 
     QNetworkReply* reply=this->manager->get(QNetworkRequest(QUrl(url)));

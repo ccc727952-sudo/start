@@ -1,3 +1,7 @@
+/*
+ * @brief 语音播报工具类【单例】
+ * 语音播报工具类【单例】，用于在程序中播报语音
+*/
 #include "speechutils.h"
 #include <QDebug>
 #include <QEventLoop>

@@ -24,7 +24,10 @@
 
 // #endif // SPEECHUTILS_H
 
-
+/*
+ * @brief 语音播报工具类【单例】
+ * 语音播报工具类【单例】，用于在程序中播报语音
+*/
 #ifndef SPEECHUTILS_H
 #define SPEECHUTILS_H
 
