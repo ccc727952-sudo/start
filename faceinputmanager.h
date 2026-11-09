@@ -72,7 +72,8 @@ signals:
     //提交成功后，让两个子线程"重新开工"，迎接下一位住户
     void resetCapture();//采集子线程：清理状态
     void resetWorkState();//处理子线程状态机回到START
-
+        //提交成功，通知QML清空表单，准备录入下一位住户
+    void saveDataSuccess();
 public slots:
     //worker采集到帧后，通过信号通知，在这里操作QML可以显示的对象
     void onFrameReady(const QImage &image);

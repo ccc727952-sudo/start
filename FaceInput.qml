@@ -14,6 +14,18 @@ Item {
     id:faceInputPage
     //住户信息，将返回的json直接注入
     property var users: {"sn":"","phone":"","name":"","address":""}
+        //清空表单，准备录入下一位住户
+    function clearForm(){
+        //1.住户编号是用户手输的，没有绑定 users，必须单独清
+        idRow.text = ""
+        //2.整对象重新赋值：property var 不追踪内部属性变化，
+        //  只有整体换一个新对象，nameRow/phoneRow/addressRow 的绑定才会刷新
+        users = {"sn":"","phone":"","name":"","address":""}
+        //3.验证码
+        verifyCodeInput.text = ""
+        //4.提示条
+        hintText.text = ""
+    }
     //定义一个属性，接收当前摄像头是否开始
     property bool isOpen: false
 
@@ -249,6 +261,9 @@ Item {
         }
         function onShowUserData(obj){//显示用户信息
             users=obj
+        }
+        function onSaveDataSuccess(){//提交成功，清空表单
+            faceInputPage.clearForm()
         }
     }
 }

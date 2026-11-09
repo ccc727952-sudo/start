@@ -217,12 +217,20 @@ void FaceInputManager::saveData(const QJsonObject& obj,const QString& verifyCode
         reply->deleteLater();
         const QJsonObject obj=QJsonDocument::fromJson(data).object();
         qDebug()<<"[HTTP] 提交保存人脸特征向量接口返回: "<<obj;
+        /*
+        注意顺序 （这条很关键）：
+        1. `features.clear()` —— 先清掉这位住户的特征，否则下一个人会提交到上一个人的特征
+        2. `emit saveDataSuccess()` —— 通知界面清空
+        3. `emit resetWorkState()` —— 必须先于`resetCapture` ，让状态机先回`START` （上次讲过，顺序反了复位后头几帧会被丢）
+        4. `emit resetCapture()` —— 最后才放开采集
+        */
         if(isSuccess(obj.value("success"))){
             emit errorOccurred("提交成功！");
-            //提交完成放开采集，状态机恢复，才能继续录入下一个人
+            //先通知界面清空，再复位两个子线程
             this->features.clear();
-            emit this->resetCapture();
+            emit this->saveDataSuccess();
             emit this->resetWorkState();
+            emit this->resetCapture();
         }else{
             emit errorOccurred("提交失败，请重新提交！");
         }
