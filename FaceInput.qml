@@ -261,6 +261,12 @@ Item {
                     // 跳转到网络配置页面，和 Register.qml 一样用 StackView.push
                     // StackView.view 是挂在 FaceInput.qml 根 Item 上的附加属性
                     console.log("【网络设置】按钮被点击了")
+                    // 进配置页前先暂停采集，效果与点击 startBtn 完全一致：
+                    // closeCamera(0) 只是停掉定时器送帧，不释放摄像头设备，回来还能接着用
+                    if(isOpen){
+                        faceInputManager.closeCamera(0)
+                        isOpen=false
+                    }
                     //faceInputPage.StackView.view.push("qrc:/qt/qml/accessControlSystem_faceInput/SetupNetwork.qml")
                     faceInputPage.StackView.view.push("SetupNetwork.qml")
                 }
