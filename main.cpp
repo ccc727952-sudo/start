@@ -4,6 +4,7 @@
 */
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <opencv2/opencv.hpp>
 #include <QDebug>
 #include "loginmanager.h"
@@ -12,7 +13,7 @@
 #include <QVector>
 #include <QFile>
 #include <QByteArray>
-
+#include "networkconfig.h"
 // -----------------------------------------------------------------------------
 // 【读图 / 存图】—— 绕开 OpenCV 不支持中文路径的坑
 //
@@ -109,6 +110,11 @@ int main(int argc, char *argv[])
     // 登录管理器 —— 注册给 QML 用（登录案例要用）
     qmlRegisterType<LoginManager>("cn.rh", 1, 0, "LoginManager");
     qmlRegisterType<FaceInputManager>("cn.rh", 1, 0, "FaceInputManager");
+        qmlRegisterType<NetworkConfig>("cn.rh", 1, 0, "NetworkConfig");
+    // 在 C++ 里 new 好实例，作为全局上下文属性注入 QML
+    // 这样 QML 里不用 import cn.rh，也不用写 NetworkConfig{}，直接用 networkConfig.xxx 就行
+    NetworkConfig *networkConfig = new NetworkConfig();
+    engine.rootContext()->setContextProperty("networkConfig", networkConfig);
     engine.loadFromModule("accessControlSystem_faceInput", "Main");
     qDebug()<<"OpenCV 版本："<<CV_VERSION;
     //test2();

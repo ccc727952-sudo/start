@@ -203,7 +203,7 @@ Item {
         RowLayout{
             Layout.fillWidth: true
             spacing: 20
-            Layout.alignment: Qt.AlignCenter
+            //Layout.alignment: Qt.AlignCenter
             Button{
                 id: startBtn
                 text: isOpen?"暂停采集":"开始采集"
@@ -248,6 +248,21 @@ Item {
                     faceInputPage.StackView.view.pop()
                     faceInputManager.closeCamera(1)  //0暂停  1关闭
                     isOpen=false
+                }
+            }
+            Item{ Layout.fillWidth: true }   // ← 弹簧，把后面的按钮推到最右
+            Button{
+                id: btnNetworkSetup
+                text: "⚙ 网络设置"
+                Layout.preferredWidth: 140
+                Layout.preferredHeight: 44
+                font.pointSize: 15
+                onClicked:{
+                    // 跳转到网络配置页面，和 Register.qml 一样用 StackView.push
+                    // StackView.view 是挂在 FaceInput.qml 根 Item 上的附加属性
+                    console.log("【网络设置】按钮被点击了")
+                    //faceInputPage.StackView.view.push("qrc:/qt/qml/accessControlSystem_faceInput/SetupNetwork.qml")
+                    faceInputPage.StackView.view.push("SetupNetwork.qml")
                 }
             }
         }

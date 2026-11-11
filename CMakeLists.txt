@@ -67,6 +67,8 @@ RESOURCES resources.qrc
 SOURCES facedetector.cpp facedetector.h modelpaths.cpp modelpaths.h
 SOURCES dlibutil.cpp dlibutil.h
 SOURCES speechutils.h speechutils.cpp
+QML_FILES SetupNetwork.qml     # ← 新增页面用于配置网络
+SOURCES networkconfig.h networkconfig.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -120,6 +122,7 @@ endif()
 # 【模型目录】编译进程序（modelpaths.cpp 里再用环境变量 FACE_MODEL_DIR 覆盖）
 target_compile_definitions(appaccessControlSystem_faceInput PRIVATE
     FACE_MODEL_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources/model"
+    NETWORK_CONFIG_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 target_link_libraries(appaccessControlSystem_faceInput
     PRIVATE Qt6::Quick

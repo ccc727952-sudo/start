@@ -37,8 +37,11 @@ RowLayout {
     Layout.fillWidth: true
 
     Text {
+        id: label
         text: root.labelText
-        Layout.preferredWidth: root.labelWidth
+        // 宽度取"固定值"和"文字实际宽度"里更大的那个：
+        // 标签短时保持 labelWidth 的对齐效果，标签长时自动撑开，避免被裁掉
+        Layout.preferredWidth: Math.max(root.labelWidth, label.implicitWidth)
         font {
             family: "宋体"
             pointSize: 14
