@@ -32,8 +32,8 @@ CaptureWorker::CaptureWorker(QObject *parent)
 
     connect(this->timer,&QTimer::timeout,this,&CaptureWorker::grabFrame);//定时器每33毫秒抓取一帧视频
 
-    //1s大概30帧
-    this->timer->start(33);//33毫秒
+    // 不在这里启动：构造函数早于 moveToThread，此时定时器还挂在 GUI 线程
+    // 统一放到 open() 成功后再 start，保证它在采集线程里跑
 }
 
 //打开摄像头，index是摄像头的编号(0=第一个)
@@ -44,21 +44,38 @@ void CaptureWorker::open(int index){
     //打开摄像头
     if(!this->cap.isOpened()){
         //Windows 上使用DSHOW都端更稳定
-        this->cap.open(index,cv::CAP_DSHOW);
+        bool ok = false;
+        try {
+            ok = this->cap.open(index,cv::CAP_DSHOW);
+        } catch (const cv::Exception &e) {
+            qDebug() << "[open] open 抛异常:" << e.what();
+        }
         //打开后为false，说明打开失败
-        if(!this->cap.isOpened()){
+        if(!ok || !this->cap.isOpened()){
             //给qml用户做提示
             emit errorOccurred("打开摄像头失败");
             this->m_isrunning=false;
+            return;
         }
     }
+    // 设备真的开了才开始抓帧
+    this->timer->start(33);
 }
 //关闭摄像头，type=0暂停采集、type=1彻底释放设备
 void CaptureWorker::close(int type){
     this->m_isrunning=false;
     if(type==1){
-        //要彻底关闭摄像头，把设备释放掉
-        this->cap.release();
+        // 先停定时器，避免边 release 边 cap>>frame
+        if(this->timer)
+            this->timer->stop();
+        //要彻底关闭摄像头，把设备释放掉；驱动异常时 release 会抛异常
+        if(this->cap.isOpened()){
+            try {
+                this->cap.release();
+            } catch (const cv::Exception &e) {
+                qDebug() << "[close] release 抛异常:" << e.what();
+            }
+        }
     }
     //type==0只是暂时不采集，设备还开着，下次open接着使用
 }
@@ -67,8 +84,16 @@ void CaptureWorker::grabFrame(){
     if(!this->m_isrunning){//如果采集线程没有运行，直接返回
         return;
     }
+    if(!this->cap.isOpened()){//设备没开就别读，否则会抛异常
+        return;
+    }
     cv::Mat frame;//存储采集到的帧
-    this->cap>>frame;//这一步可能会阻塞，所以必须在子线程中//读取一帧视频
+    try {
+        this->cap>>frame;//这一步可能会阻塞，所以必须在子线程中//读取一帧视频
+    } catch (const cv::Exception &e) {
+        qDebug() << "[grabFrame] 抓帧抛异常:" << e.what();
+        return;
+    }
     if(frame.empty()){//如果读取到的帧为空，说明摄像头有问题，也要给用户提示
         //读取帧失败，说明摄像头有问题，也要给用户提示
         emit errorOccurred("读取失败");
